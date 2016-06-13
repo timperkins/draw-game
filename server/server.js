@@ -5,16 +5,23 @@ var http      = require('http').Server(app);
 var path      = require('path');
 var io        = require('socket.io')(http);
 var buildDir  = path.resolve(__dirname, '../client/build');
+var bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 // Bootstrap the game
-require('./src')(io);
-
-app.get('/', function(req, res){
-  res.sendFile('index.html', {root: buildDir});
+require('./src')({
+	app: app,
+	io: io
 });
 
 app.use('/static/', express.static(buildDir));
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+app.all('/*', function(req, res){
+	res.sendFile('index.html', {root: buildDir});
+});
+
+http.listen(3007, function(){
+  console.log('listening on *:3007');
 });

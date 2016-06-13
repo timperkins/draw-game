@@ -1,13 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link, browserHistory } from 'react-router';
 import axios from 'axios';
 import app from '../app';
 
-export default class CreateUser extends React.Component {
+export default class CreateGame extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 		this.state = {
-			name: 'tim'
+			name: 'Untitled Game'
 		};
 		this.handleNameChange = this.handleNameChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -21,21 +21,16 @@ export default class CreateUser extends React.Component {
 
 	handleSubmit(e) {
 		e.preventDefault();
-
-		// Use a socket to create the user so we can associate the socket with the user
-		app.socket.emit('createUser', {
-			name: this.state.name
-		}, function(user) {
-			app.saveUser(user);
-			app.updateRoute('gameList');
+		axios.post('/api/game', {name: this.state.name}).then(res => {
+			browserHistory.push(`/game/stage/${res.data.id}`);
 		});
 	}
 
 	render() {
 		return (
 			<form id="name-form" onSubmit={this.handleSubmit}>
-				<h3>Create a user</h3>
-				<label for="name">Your Name: 	</label>
+				<h3>New game:</h3>
+				<label for="name">Name: 	</label>
 				<input type="text" id="name" value={this.state.name} onChange={e=>this.handleNameChange(e.target.value)} />
 				<input type="submit" />
 			</form>
@@ -43,7 +38,7 @@ export default class CreateUser extends React.Component {
 	}
 }
 
-app.addRoute('createUser', {
-	path: '/',
-	component: CreateUser
+app.addRoute('createGame', {
+	path: '/game/new',
+	component: CreateGame
 });
